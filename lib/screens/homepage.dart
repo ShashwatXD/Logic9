@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
 import 'package:sudofutter/screens/howtoplay.dart';
 import 'package:sudofutter/screens/levelselectscreen.dart';
 
@@ -11,13 +10,14 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool isPlaying = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _playMusic();
   }
 
@@ -42,7 +42,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _audioPlayer.pause(); 
+    } else if (state == AppLifecycleState.resumed && isPlaying) {
+      _audioPlayer.resume(); 
+    }
+    
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -52,9 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'), 
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -76,10 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/logic9logo.png', 
+                      'assets/images/logic9logo.png',
                       height: 150,
                       width: 150,
                     ),
@@ -87,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'Logic9',
                       style: TextStyle(
-                        fontSize: 24, 
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF4F6F52), 
+                        color: Color(0xFF4F6F52),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -97,7 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => LevelSelectScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => LevelSelectScreen(),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -121,7 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const HowToPlayScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const HowToPlayScreen(),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(

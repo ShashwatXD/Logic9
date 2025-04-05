@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sudofutter/screens/gamescreen.dart';
-import 'package:sudofutter/screens/transitionscreen.dart';
+import 'package:sudofutter/screens/homepage.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: HomeScreen(),
       
       onGenerateRoute: (settings) {
   if (settings.name == '/game') {

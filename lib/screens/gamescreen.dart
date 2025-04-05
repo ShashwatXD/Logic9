@@ -32,8 +32,7 @@ class _GameScreenState extends State<GameScreen> {
     level = widget.level;
     userBoard = puzzle.map((row) => List<int>.from(row)).toList();
     
-    // Generate solution using the getSolution method from SudokuEngine
-    solution = engine.getSolution(puzzle);
+    solution = engine.getSolution(puzzle);//soultioncalling
   }
 
   void onNumberSelected(int number) {

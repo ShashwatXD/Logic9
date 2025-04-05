@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
   Future<void> _checkAndShowDialog() async {
     final prefs = await SharedPreferences.getInstance();
-    final shouldShow = prefs.getBool('showDialog') ?? true;
+    final shouldShow = prefs.getBool('showDialog') ?? true;//dialog box wont show when false
 
     if (shouldShow) {
       Future.delayed(Duration.zero, () {
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Got it!"),
+                child: const Text("Let's Go"),
               ),
             ],
           ),
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-                  ],
+                    ],
                 ),
               ),
             ],

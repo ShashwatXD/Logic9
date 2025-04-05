@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:sudofutter/engine/sudoku_engine.dart';
 
@@ -23,20 +24,18 @@ class _GameScreenState extends State<GameScreen> {
 
   int? selectedRow;
   int? selectedCol;
-  late List<List<int>> puzzle;
   late int level;
-
-  late DateTime startTime;
   Timer? _timer;
+  late DateTime startTime;
   Duration elapsedTime = Duration.zero;
+  int mistakeCount = 0;
 
   @override
   void initState() {
     super.initState();
-    puzzle = widget.puzzle;
     level = widget.level;
-    userBoard = puzzle.map((row) => List<int>.from(row)).toList();
-    solution = engine.getSolution(puzzle);
+    userBoard = widget.puzzle.map((row) => List<int>.from(row)).toList();
+    solution = engine.getSolution(widget.puzzle);
     startTime = DateTime.now();
     startTimer();
   }
@@ -55,72 +54,110 @@ class _GameScreenState extends State<GameScreen> {
     super.dispose();
   }
 
-  String formatDuration(Duration duration) {
-    int hours = duration.inHours;
-    int mins = (duration.inMinutes % 60);
-    int secs = (duration.inSeconds % 60);
-    
-    if (hours > 0) {
-      return "$hours:${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
-    }
-    return "${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
-  }
-
   void onNumberSelected(int number) {
     if (selectedRow != null && selectedCol != null) {
-      if (puzzle[selectedRow!][selectedCol!] == 0) {
+      if (widget.puzzle[selectedRow!][selectedCol!] == 0) {
         setState(() {
-          userBoard[selectedRow!][selectedCol!] = number;
+          if (userBoard[selectedRow!][selectedCol!] == number) {
+            userBoard[selectedRow!][selectedCol!] = 0;
+          } else {
+            userBoard[selectedRow!][selectedCol!] = number;
+            if (number != solution[selectedRow!][selectedCol!]) {
+              mistakeCount++;
+              if (mistakeCount >= 3) {
+                _timer?.cancel();
+                showGameOverDialog();
+              }
+            }
+          }
         });
       }
     }
   }
 
-  Color getCellColor(int row, int col) {
-    int value = userBoard[row][col];
-    if (puzzle[row][col] != 0) return const Color(0xFFEDEDED);
-    if (value == 0) return Colors.white;
-    if (value == solution[row][col]) return Colors.green.shade200;
-    return Colors.red.shade200;
-  }
-
-  void checkAndShowResult() {
-    bool correct = engine.isCorrect(userBoard, solution);
-
-    if (correct) {
-      _timer?.cancel(); //stopping the timer 
-    }
-
-    String formattedTime = formatDuration(elapsedTime);
-
+  void showGameOverDialog() {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFFEDEDED),
-        title: Text(correct ? "🎉 Puzzle Solved!" : "❌ Try Again"),
-        content: Text(
-          correct
-              ? "You solved the puzzle in $formattedTime!"
-              : "Some numbers are incorrect.",
-          style: const TextStyle(fontSize: 16),
-        ),
+        backgroundColor: Colors.white,
+        title: const Text("Game Over 💀"),
+        content: const Text("You made 3 mistakes. Try again!"),
         actions: [
           TextButton(
-            child: const Text("OK"),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.of(context).pop();
+              resetGame();
+            },
+            child: const Text("Restart"),
           )
         ],
       ),
     );
   }
 
-  Widget buildSudokuGrid() {
+  void resetGame() {
+    setState(() {
+      userBoard = widget.puzzle.map((row) => List<int>.from(row)).toList();
+      selectedRow = null;
+      selectedCol = null;
+      mistakeCount = 0;
+      elapsedTime = Duration.zero;
+      _timer?.cancel();
+      startTime = DateTime.now();
+      startTimer();
+    });
+  }
+
+  String formatTime(Duration duration) {
+    int m = duration.inMinutes.remainder(60);
+    int s = duration.inSeconds.remainder(60);
+    return "${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}";
+  }
+
+  bool isSameBlock(int r1, int c1, int r2, int c2) {
+    return (r1 ~/ 3 == r2 ~/ 3) && (c1 ~/ 3 == c2 ~/ 3);
+  }
+
+  Color getCellColor(int row, int col) {
+    if (widget.puzzle[row][col] != 0) return const Color(0xFFEDEDED);
+    if (userBoard[row][col] == 0) return Colors.white;
+    if (userBoard[row][col] == solution[row][col]) return Colors.green.shade200;
+    return Colors.red.shade200;
+  }
+
+  void checkResult() {
+    bool correct = engine.isCorrect(userBoard, solution);
+    _timer?.cancel();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: Text(correct ? "🎉 Puzzle Solved!" : "❌ Try Again"),
+        content: Text(correct
+            ? "You solved the puzzle in ${formatTime(elapsedTime)}"
+            : "Some numbers are incorrect."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildGrid() {
     return Table(
       border: TableBorder.all(color: Colors.black),
       children: List.generate(9, (row) {
         return TableRow(
           children: List.generate(9, (col) {
             bool isSelected = selectedRow == row && selectedCol == col;
+            bool inSameBlock = selectedRow != null &&
+                selectedCol != null &&
+                isSameBlock(selectedRow!, selectedCol!, row, col);
+
             return GestureDetector(
               onTap: () {
                 setState(() {
@@ -129,11 +166,15 @@ class _GameScreenState extends State<GameScreen> {
                 });
               },
               child: Container(
-                height: 40,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: getCellColor(row, col),
+                  color: isSelected
+                      ? Colors.yellow.shade300
+                      : inSameBlock
+                          ? Colors.yellow.shade100
+                          : getCellColor(row, col),
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF4F6F52) : Colors.black,
+                    color: isSelected ? const Color(0xFF4F6F52) : Colors.black45,
                     width: isSelected ? 2 : 0.5,
                   ),
                 ),
@@ -143,7 +184,7 @@ class _GameScreenState extends State<GameScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
-                    color: puzzle[row][col] != 0
+                    color: widget.puzzle[row][col] != 0
                         ? Colors.black
                         : const Color(0xFF4F6F52),
                   ),
@@ -159,85 +200,85 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF86A789),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF4F6F52),
-        title: Text(
-          "Level ${level + 1}",
-          style: const TextStyle(
-            fontSize: 18, 
-            fontWeight: FontWeight.bold,
-            color: Colors.white
-          ),
-        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text("Level ${level + 1}"),
         centerTitle: true,
-        elevation: 2,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            _buildTimerWidget(),
-            const SizedBox(height: 16),
-            buildSudokuGrid(),
-            const SizedBox(height: 20),
-            NumberPad(onNumberSelected: onNumberSelected),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: checkAndShowResult,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4F6F52),
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/gameback.jpg',
+            fit: BoxFit.cover,
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, kToolbarHeight + 30, 16, 16),
+            child: Column(
+              children: [
+                _topInfoBar(),
+                const SizedBox(height: 12),
+                buildGrid(),
+                const SizedBox(height: 24),
+                NumberPad(onNumberSelected: onNumberSelected),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: checkResult,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:  Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 46, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 6,
+                    shadowColor: Colors.black38,
+                  ),
+                  child: const Text(
+                    "Submit",
+                    style: TextStyle(
+                      fontSize: 18,
+                      letterSpacing: 1,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              child: const Text(
-                "Submit",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildTimerWidget() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _topInfoBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Icon(
-            Icons.timer,
-            color: Color(0xFF4F6F52),
-            size: 24,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            formatDuration(elapsedTime),
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF4F6F52),
-              fontFamily: 'Roboto',
-              letterSpacing: 1.2,
-            ),
+          Text("Mistakes: $mistakeCount / 3",
+              style: const TextStyle(
+                color: Color.fromARGB(255, 217, 140, 140),
+                fontWeight: FontWeight.w600,
+              )),
+          Row(
+            children: [
+              const Icon(Icons.timer, size: 20, color: Colors.black87),
+              const SizedBox(width: 5),
+              Text(formatTime(elapsedTime),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black87)),
+            ],
           ),
         ],
       ),
@@ -248,33 +289,35 @@ class _GameScreenState extends State<GameScreen> {
 class NumberPad extends StatelessWidget {
   final Function(int) onNumberSelected;
 
-  const NumberPad({Key? key, required this.onNumberSelected})
-      : super(key: key);
+  const NumberPad({Key? key, required this.onNumberSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+      spacing: 12,
+      runSpacing: 12,
       children: List.generate(9, (index) {
         int number = index + 1;
         return GestureDetector(
           onTap: () => onNumberSelected(number),
           child: Container(
-            width: 45,
-            height: 45,
             alignment: Alignment.center,
+            width: 40,
+            height: 50,
             decoration: BoxDecoration(
-              color: const Color(0xFF86A789),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color( 0xFF4F6F52), width: 1.5),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: const Color.fromARGB(255, 73, 66, 66), 
+                width: 2,
+              ),
             ),
             child: Text(
               number.toString(),
               style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueGrey,
               ),
             ),
           ),

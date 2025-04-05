@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:sudofutter/screens/homepage.dart';
 
+
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();

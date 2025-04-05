@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sudofutter/screens/howtoplay.dart';
 import 'package:sudofutter/screens/levelselectscreen.dart';
 
@@ -17,10 +18,43 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);//switch pr gana bnd
     _playMusic();
+    _checkAndShowDialog();
   }
+  Future<void> _checkAndShowDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shouldShow = prefs.getBool('showDialog') ?? true;
 
+    if (shouldShow) {
+      Future.delayed(Duration.zero, () {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            title: const Text("Welcome to Logic9 🧠"),
+            content: const Text(
+              "Get ready to solve brain-twisting Sudoku puzzles! Can you master all the levels?",
+            ),
+            actions: [
+              
+              TextButton(
+                onPressed: () async {
+                  await prefs.setBool('showDialog', false);
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Don't show again"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("Got it!"),
+              ),
+            ],
+          ),
+        );
+      });
+    }
+  }
   void _playMusic() async {
     try {
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
@@ -53,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);//doesnt work..
     _audioPlayer.dispose();
     super.dispose();
   }

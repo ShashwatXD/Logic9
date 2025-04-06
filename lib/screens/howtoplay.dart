@@ -7,14 +7,16 @@ class HowToPlayScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/htp.png'), 
+            image: AssetImage('assets/images/htp.png'),
             fit: BoxFit.cover,
           ),
         ),
         child: Container(
-          color: Colors.white.withOpacity(0.39), 
+          color: Colors.white.withOpacity(0.39),
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -87,27 +89,26 @@ class HowToPlayScreen extends StatelessWidget {
 
                     Center(
                       child: ElevatedButton(
-  onPressed: () => Navigator.pop(context),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color.fromARGB(255, 113, 168, 119),
-    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-      side: const BorderSide(
-        color: Color.fromARGB(255, 89, 88, 88),
-        width: 2,
-      ),
-    ),
-  ),
-  child: const Text(
-    "Got It!",
-    style: TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-    ),
-  ),
-),
-
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 113, 168, 119),
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 89, 88, 88),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          "Got It!",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 250),
                   ],

@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sudofutter/screens/howtoplay.dart';
 import 'package:sudofutter/screens/levelselectscreen.dart';
+import 'package:sudofutter/screens/scantosolve.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -119,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const HomeScreen(),
+                        builder: (_) =>  ScanToSolveScreen(),
                       ),
                     );
                   },

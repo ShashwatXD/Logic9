@@ -83,7 +83,7 @@ class HowToPlayScreen extends StatelessWidget {
                       " Solve more puzzles and improve your Sudoku skills.",
                       style: TextStyle(fontSize: 16),
                     ),
-                    const SizedBox(height: 250),
+                    const SizedBox(height: 50),
 
                     Center(
                       child: ElevatedButton(
@@ -109,7 +109,7 @@ class HowToPlayScreen extends StatelessWidget {
 ),
 
                     ),
-                    const SizedBox(height: 30000),
+                    const SizedBox(height: 250),
                   ],
                 ),
               ),

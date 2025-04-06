@@ -88,7 +88,7 @@ class _GameScreenState extends State<GameScreen> {
               Navigator.of(context).pop();
               resetGame();
             },
-            child: const Text("Restart"),
+            child: const Text("Restart!"),
           )
         ],
       ),

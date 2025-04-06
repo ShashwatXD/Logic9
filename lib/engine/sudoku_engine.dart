@@ -3,7 +3,7 @@ class SudokuEngine {
   bool solve(List<List<int>> board) {
     for (int row = 0; row < 9; row++) {
       for (int col = 0; col < 9; col++) {
-        if (board[row][col] == 0) {
+        if (board[row][col] == 0) {        //treating 0 as blank
           for (int num = 1; num <= 9; num++) {
             if (_isValid(board, row, col, num)) {
               board[row][col] = num;

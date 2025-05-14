@@ -19,13 +19,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);//switch pr gana bnd
+    WidgetsBinding.instance.addObserver(this); //switch pr gana bnd
     _playMusic();
     _checkAndShowDialog();
   }
+
   Future<void> _checkAndShowDialog() async {
     final prefs = await SharedPreferences.getInstance();
-    final shouldShow = prefs.getBool('showDialog') ?? true;//dialog box wont show when false
+    final shouldShow =
+        prefs.getBool('showDialog') ?? true; //dialog box wont show when false
 
     if (shouldShow) {
       Future.delayed(Duration.zero, () {
@@ -33,22 +35,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           context: context,
           barrierDismissible: false,
           builder: (_) => AlertDialog(
-            title: const Text("Welcome to Logic9 🧠"),
+            title: const Text(
+              "Welcome to Logic9 🧠",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             content: const Text(
               "Get ready to solve brain-twisting Sudoku puzzles! Can you master all the levels?",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             actions: [
-              
               TextButton(
                 onPressed: () async {
                   await prefs.setBool('showDialog', false);
                   Navigator.of(context).pop();
                 },
-                child: const Text("Don't show again"),
+                child: const Text(
+                  "Don't show again",
+                  style: TextStyle(color: Colors.blueGrey),
+                ),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Let's Go"),
+                child: const Text(
+                  "Let's Go",
+                  style: TextStyle(color: Colors.blueGrey),
+                ),
               ),
             ],
           ),
@@ -56,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       });
     }
   }
+
   void _playMusic() async {
     try {
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
@@ -79,16 +91,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      _audioPlayer.pause(); 
+      _audioPlayer.pause();
     } else if (state == AppLifecycleState.resumed && isPlaying) {
-      _audioPlayer.resume(); 
+      _audioPlayer.resume();
     }
-    
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);//doesnt work..
+    WidgetsBinding.instance.removeObserver(this); //doesnt work..
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -120,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>  ScanToSolveScreen(),
+                        builder: (_) => ScanToSolveScreen(),
                       ),
                     );
                   },
@@ -161,7 +172,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 200,),
+                    SizedBox(
+                      height: 200,
+                    ),
                     Image.asset(
                       'assets/images/logic9logo.png',
                       height: 150,
@@ -200,7 +213,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF86A789),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

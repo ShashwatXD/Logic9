@@ -14,23 +14,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LikeFeature(),
-      
+      home: HomeScreen(),
       onGenerateRoute: (settings) {
-  if (settings.name == '/game') {
-    final args = settings.arguments as Map<String, dynamic>;
-    final level = args['level'] as int;
-    final puzzle = args['puzzle'] as List<List<int>>;
+        if (settings.name == '/game') {
+          final args = settings.arguments as Map<String, dynamic>;
+          final level = args['level'] as int;
+          final puzzle = args['puzzle'] as List<List<int>>;
 
-    return MaterialPageRoute(
-      builder: (context) => GameScreen(
-        puzzle: puzzle,
-        level: level,
-      ),
-    );
-  }
-  return null;
-},
+          return MaterialPageRoute(
+            builder: (context) => GameScreen(
+              puzzle: puzzle,
+              level: level,
+            ),
+          );
+        }
+        return null;
+      },
     );
   }
 }

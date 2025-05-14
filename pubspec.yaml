@@ -73,11 +73,9 @@ flutter_native_splash:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/logic9logo.png
-    - assets/images/background.png
+    - assets/images/
+
     - assets/music/excited.mp3
-    - assets/images/gameback.jpg
-    - assets/images/htp.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

@@ -1,2 +1,0 @@
-/Users/shashwat/Desktop/logic9 5 jun/Logic9/android/app/.cxx/Debug/563v2v2c/x86_64/CMakeFiles/edit_cache.dir
-/Users/shashwat/Desktop/logic9 5 jun/Logic9/android/app/.cxx/Debug/563v2v2c/x86_64/CMakeFiles/rebuild_cache.dir

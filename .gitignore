@@ -10,6 +10,13 @@
 .svn/
 migrate_working_dir/
 android/app/.cxx/
+android/.cxx/
+
+**/*.so
+**/*.c
+**/*.cpp
+**/*.h
+build/
 
 
 # IntelliJ related

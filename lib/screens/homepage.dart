@@ -20,8 +20,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this); //switch pr gana bnd
-    _playMusic();
+    // _playMusic();
     _checkAndShowDialog();
+
   }
 
   Future<void> _checkAndShowDialog() async {

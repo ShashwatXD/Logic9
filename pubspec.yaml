@@ -41,6 +41,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   audioplayers: ^6.4.0
   hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
    

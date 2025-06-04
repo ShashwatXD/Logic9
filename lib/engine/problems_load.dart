@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'dart:developer';
 
@@ -28,25 +29,35 @@ class SudokuProblemManager {
     }
   }
 
-  static Future<int> fetchAndAppendNewPuzzles() async {
-    final box = await Hive.openBox(_boxName);
-    final newPuzzles = await SudokuApiService.fetchPuzzles();
 
-    int added = 0;
-    for (var puzzle in newPuzzles) {
-      List<List<int>> board = (puzzle as List)
-          .map<List<int>>((row) => List<int>.from(row))
-          .toList();
+static Future<int> fetchAndAppendNewPuzzles() async {
+  final box = await Hive.openBox(_boxName);
+  final newPuzzles = await SudokuApiService.fetchPuzzles();
 
-      if (!sudokuProblems.contains(board)) {
-        sudokuProblems.add(board);
-        added++;
-      }
+  int added = 0;
+  for (var puzzle in newPuzzles) {
+    List<List<int>> board = (puzzle as List)
+        .map<List<int>>((row) => List<int>.from(row))
+        .toList();
+
+    // 🔍 Check deep equality
+    bool isDuplicate = sudokuProblems.any((existing) =>
+      listEquals(
+        existing.expand((e) => e).toList(),
+        board.expand((e) => e).toList(),
+      )
+    );
+
+    if (!isDuplicate) {
+      sudokuProblems.add(board);
+      added++;
     }
-
-    await box.put('problems', sudokuProblems);
-    return added;
   }
+
+  await box.put('problems', sudokuProblems);
+  return added;
+}
+
 //hardcoded 4 questions rest from backedn
   static final List<List<List<int>>> _fallbackPuzzles = [
     [

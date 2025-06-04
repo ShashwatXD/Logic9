@@ -1,20 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:sudofutter/engine/problems_load.dart';
 import 'package:sudofutter/screens/gamescreen.dart';
 import 'package:sudofutter/screens/homepage.dart';
 import 'package:sudofutter/screens/like.dart';
 
-void main() {
+
+void main() async {
+  
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
+  await SudokuProblemManager.init(); 
+
   runApp(MyApp());
+
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
+
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareApp();
+  }
+
+  Future<void> _prepareApp() async {
+    await precacheImage(const AssetImage('assets/images/background.png'), context);
+        await precacheImage(const AssetImage('assets/images/htp.png'), context);
+            await precacheImage(const AssetImage('assets/images/gameback.jpg'), context);
+
+
+
+    HomeScreen();
+ 
+
+    setState(() {
+      _isReady = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: _isReady
+          ? const HomeScreen()
+          : const Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF86A789),
+                ),
+              ),
+            ),
       onGenerateRoute: (settings) {
         if (settings.name == '/game') {
           final args = settings.arguments as Map<String, dynamic>;
@@ -33,3 +83,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

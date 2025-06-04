@@ -85,8 +85,7 @@ class HowToPlayScreen extends StatelessWidget {
                       " Solve more puzzles and improve your Sudoku skills.",
                       style: TextStyle(fontSize: 16),
                     ),
-                    const SizedBox(height: 50),
-
+                    const SizedBox(height: 60),
                     Center(
                       child: ElevatedButton(
                         onPressed: () => Navigator.pop(context),

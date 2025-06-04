@@ -15,20 +15,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool isPlaying = true;
+  double _opacity = 0.0;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); //switch pr gana bnd
-     _playMusic();
+    WidgetsBinding.instance.addObserver(this);
+    _playMusic();
     _checkAndShowDialog();
 
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        _opacity = 1.0;
+      });
+    });
   }
 
   Future<void> _checkAndShowDialog() async {
     final prefs = await SharedPreferences.getInstance();
-    final shouldShow =
-        prefs.getBool('showDialog') ?? true; //dialog box wont show when false
+    final shouldShow = prefs.getBool('showDialog') ?? true;
 
     if (shouldShow) {
       Future.delayed(Duration.zero, () {
@@ -100,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); //doesnt work..
+    WidgetsBinding.instance.removeObserver(this);
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -108,133 +113,135 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
-            fit: BoxFit.cover,
+      body: AnimatedOpacity(
+        duration: const Duration(milliseconds: 2500),
+        opacity: _opacity,
+        child: Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              Positioned(
-                top: 10,
-                left: 10,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.document_scanner,
-                    color: Color(0xFF4F6F52),
-                    size: 30,
+          child: SafeArea(
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.document_scanner,
+                      color: Color(0xFF4F6F52),
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ScanToSolveScreen(),
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ScanToSolveScreen(),
-                      ),
-                    );
-                  },
                 ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Column(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        isPlaying ? Icons.music_note : Icons.music_off,
-                        color: const Color(0xFF4F6F52),
-                        size: 30,
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          isPlaying ? Icons.music_note : Icons.music_off,
+                          color: const Color(0xFF4F6F52),
+                          size: 30,
+                        ),
+                        onPressed: _toggleMusic,
                       ),
-                      onPressed: _toggleMusic,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.help_outline,
-                        color: Color(0xFF4F6F52),
-                        size: 30,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HowToPlayScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 200,
-                    ),
-                    Image.asset(
-                      'assets/images/logic9logo.png',
-                      height: 150,
-                      width: 150,
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Logic9',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4F6F52),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            spreadRadius: 1,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
+                      IconButton(
+                        icon: const Icon(
+                          Icons.help_outline,
+                          color: Color(0xFF4F6F52),
+                          size: 30,
+                        ),
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LevelSelectScreen(),
+                              builder: (context) => const HowToPlayScreen(),
                             ),
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF86A789),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 5,
+                      ),
+                    ],
+                  ),
+                ),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 200),
+                      Image.asset(
+                        'assets/images/logic9logo.png',
+                        height: 150,
+                        width: 150,
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Logic9',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4F6F52),
                         ),
-                        child: const Text(
-                          'Play',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
+                      ),
+                      const SizedBox(height: 30),
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              spreadRadius: 1,
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LevelSelectScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF86A789),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 5,
+                          ),
+                          child: const Text(
+                            'Play',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

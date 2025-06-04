@@ -28,7 +28,7 @@ class UIUtils {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF86A789),
+              color: const Color.fromARGB(255, 95, 119, 96),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -41,7 +41,7 @@ class UIUtils {
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Color.fromARGB(255, 75, 75, 75), fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -52,7 +52,15 @@ class UIUtils {
     Future.delayed(const Duration(seconds: 2), () => entry.remove());
   }
 
- static void showLoading(BuildContext context, {String? message}) {
+ static void showLoadingWithTimeout(
+  BuildContext context, {
+  String? message,
+  Duration timeout = const Duration(seconds: 10),
+  String? errorMessage,
+  VoidCallback? onTimeout,
+}) {
+  bool isDialogStillOpen = true;
+
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -74,20 +82,21 @@ class UIUtils {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 32,
               height: 32,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
-                color:  const Color.fromARGB(191, 124, 208, 127)            ),
+                color: Color.fromARGB(191, 124, 208, 127),
+              ),
             ),
             if (message != null) ...[
               const SizedBox(height: 16),
               Text(
                 message,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w500,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -97,7 +106,23 @@ class UIUtils {
       ),
     ),
   );
+
+  Future.delayed(timeout, () {
+    if (isDialogStillOpen) {
+      Navigator.of(context, rootNavigator: true).pop();
+      isDialogStillOpen = false;
+
+      
+        UIUtils.showToast(context, "Error Loading Data");
+      
+
+      if (onTimeout != null) {
+        onTimeout();
+      }
+    }
+  });
 }
+
 
   static void hideLoading(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();

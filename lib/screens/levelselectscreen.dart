@@ -14,7 +14,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
 
   
   Future<void> _checkForNewPuzzles() async {
-  UIUtils.showLoading(context, message: "Checking for new puzzles...");
+  UIUtils.showLoadingWithTimeout(context, message: "Checking for new puzzles...");
 
   try {
 print("Total puzzles before: ${SudokuProblemManager.sudokuProblems.length}");

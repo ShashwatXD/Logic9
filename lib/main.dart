@@ -20,6 +20,8 @@ void main() async {
 
 
 
+
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -28,26 +30,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _isReady = false;
-
   @override
-  void initState() {
-    super.initState();
-    _prepareApp();
-  }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage('assets/images/background.jpg'), context);
 
-  Future<void> _prepareApp() async {
-    await precacheImage(const AssetImage('assets/images/background.png'), context);
-        await precacheImage(const AssetImage('assets/images/htp.png'), context);
-            await precacheImage(const AssetImage('assets/images/gameback.jpg'), context);
+    precacheImage(const AssetImage('assets/images/gameback.jpg'), context);
+    precacheImage(const AssetImage('assets/images/htp.png'), context);
 
+    Future.microtask(() {
+      HomeScreen();
+      
 
-
-    HomeScreen();
- 
-
-    setState(() {
-      _isReady = true;
+    
     });
   }
 
@@ -55,16 +50,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: _isReady
-          ? const HomeScreen()
-          : const Scaffold(
-              backgroundColor: Colors.white,
-              body: Center(
-                child: CircularProgressIndicator(
-                  color: Color(0xFF86A789),
-                ),
-              ),
-            ),
+      home: HomeScreen(),
+      
       onGenerateRoute: (settings) {
         if (settings.name == '/game') {
           final args = settings.arguments as Map<String, dynamic>;
@@ -83,4 +70,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

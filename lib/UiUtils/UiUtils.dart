@@ -28,7 +28,7 @@ class UIUtils {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 95, 119, 96),
+              color: const Color.fromARGB(255, 142, 176, 143),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -41,7 +41,7 @@ class UIUtils {
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color.fromARGB(255, 75, 75, 75), fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -52,14 +52,16 @@ class UIUtils {
     Future.delayed(const Duration(seconds: 2), () => entry.remove());
   }
 
- static void showLoadingWithTimeout(
+ static bool _isDialogOpen = false;
+
+static void showLoadingWithTimeout(
   BuildContext context, {
   String? message,
   Duration timeout = const Duration(seconds: 10),
   String? errorMessage,
   VoidCallback? onTimeout,
 }) {
-  bool isDialogStillOpen = true;
+  _isDialogOpen = true;
 
   showDialog(
     context: context,
@@ -108,13 +110,13 @@ class UIUtils {
   );
 
   Future.delayed(timeout, () {
-    if (isDialogStillOpen) {
+    if (_isDialogOpen) {
       Navigator.of(context, rootNavigator: true).pop();
-      isDialogStillOpen = false;
+      _isDialogOpen = false;
 
-      
-        UIUtils.showToast(context, "Error Loading Data");
-      
+      if (errorMessage != null) {
+        showToast(context, errorMessage);
+      }
 
       if (onTimeout != null) {
         onTimeout();
@@ -123,8 +125,13 @@ class UIUtils {
   });
 }
 
-
-  static void hideLoading(BuildContext context) {
+static void hideLoading(BuildContext context) {
+  if (_isDialogOpen) {
     Navigator.of(context, rootNavigator: true).pop();
+    _isDialogOpen = false;
   }
-}
+}}
+
+
+
+ 
